@@ -22,5 +22,5 @@ def download_file(day):
 
 
 def get_cookies():
-    with open('../session_cookie.txt', 'r') as f:
+    with open('session_cookie.txt', 'r') as f:
         return {'session': f.read()}
