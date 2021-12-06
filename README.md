@@ -1,8 +1,16 @@
 # advent-of-code-2021
 
+## Website with interactive plots
+
+This is my first website, a Heroku hosted site using Dash and Plotly to interactively visualize graphs:
+
+https://advent-of-code-leaderboard.herokuapp.com/
+
+<br>
+
 ## Static images from staticplots.ipynb
 
-GitHub doen't support interactive graphs, so I'll upload interactive_plots to a custom website when I have time, for now they are saved as html in leaderboard/interactive_plots, you can download and interact with them.
+The static version of the plots, GitHub doen't support interactive graphs.
 
 ![Alt text](leaderboard/static_plots/part1.png?raw=true)
 
