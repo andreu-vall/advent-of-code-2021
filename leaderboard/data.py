@@ -13,13 +13,25 @@ def get_data(year):
 
 def read_tables(year):
     df_path, acc_times_path = get_paths(year)
-    return pd.read_csv(df_path), pd.read_csv(acc_times_path)
+
+    df = pd.read_csv(df_path)
+    for col in df.columns:
+        if col[-1]=='1':
+            df[col] = pd.to_datetime(df[col])
+        if col[-1]=='2' or col=='accumulated_time':
+            df[col] = pd.to_timedelta(df[col])
+    
+    acc_times = pd.read_csv(acc_times_path)
+    for col in acc_times.columns[1:]:
+        acc_times[col] = pd.to_timedelta(acc_times[col])
+    
+    return df, acc_times
 
 
 def write_tables(df, acc_times, year):
     df_path, acc_times_path = get_paths(year)
-    df.to_csv(df_path)
-    acc_times.to_csv(acc_times_path)
+    df.to_csv(df_path, index=False)
+    acc_times.to_csv(acc_times_path, index=False)
 
 
 def get_paths(year):
