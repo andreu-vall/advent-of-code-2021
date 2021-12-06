@@ -10,7 +10,7 @@ https://advent-of-code-leaderboard.herokuapp.com/
 
 ## Static images from staticplots.ipynb
 
-The static version of the plots, GitHub doen't support interactive graphs.
+The static version of the plots, as GitHub doen't support interactive graphs.
 
 ![Alt text](leaderboard/static_plots/part1.png?raw=true)
 
