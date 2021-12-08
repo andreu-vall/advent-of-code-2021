@@ -1,5 +1,7 @@
 # Advent of Code 2021
 
+[Advent of Code 2021](https://adventofcode.com/2021) solutions.
+
 ## Real time leaderboard plots
 
 This is [my first website](https://advent-of-code-leaderboard.herokuapp.com/), a Heroku hosted site using Dash and Plotly to interactively visualize graphs.
