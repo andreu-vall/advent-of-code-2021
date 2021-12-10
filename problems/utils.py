@@ -11,7 +11,7 @@ def get_lines(day):
 
 
 def get_path(day):
-    return f'input/input{day}.txt'
+    return f'input/input{str(day).zfill(2)}.txt'
 
 
 def download_file(day):
