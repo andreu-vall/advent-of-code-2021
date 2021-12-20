@@ -19,6 +19,7 @@ def get_data():
     return scanners
 
 
+# Generar el grup de les 24 matrius de rotacions de 90º en 3D
 def rotations3d():
     x_rot = np.array([[1, 0, 0],    # x -> x'
                       [0, 0, 1],    # y -> y'
@@ -28,11 +29,12 @@ def rotations3d():
                       [0, 1, 0],
                       [-1, 0, 0]])
 
+    """
     z_rot = np.array([[0, 1, 0],
                       [-1, 0, 0],
-                      [0, 0, 1]])
+                      [0, 0, 1]])"""
 
-    hashed, nous = {}, {arr.tobytes(): arr for arr in [x_rot, y_rot, z_rot]}
+    hashed, nous = {}, {arr.tobytes(): arr for arr in [x_rot, y_rot]}
     while nous:
         hashed.update(nous)
         nous = {}
@@ -47,25 +49,25 @@ def rotations3d():
 
 
 def part1(data, rotations):
+    # Crida a parallelized està paral·lelitzat, normal seria una única crida i ignorant part mòdulç
     cpus = min(mp.cpu_count(), len(data))
     a_pool = mp.Pool(cpus)
     result = a_pool.starmap(parallelized, [(data, i, rotations, cpus) for i in range(cpus)])
-    print('finished all')
 
     relations = []
     for r in result:
         relations.extend(r)
 
+    # Número beacon: [coordenada relativa respecte el Beacon 0, angle relatiu respecte el Beacon 0]
     positions = {0: [np.array([0, 0, 0]), np.identity(3, dtype=int)]}
     while len(positions) < len(data):
         for i, j, coord, rot in relations:
             if i in positions and j not in positions:
                 primer, primer_rot = positions[i]
-                new_rot = np.dot(primer_rot, rot)
                 second = primer + np.dot(primer_rot, coord)
+                new_rot = np.dot(primer_rot, rot)  # No és commutatiu
                 positions[j] = [second, new_rot]
 
-    print([[k, v[0]] for k, v in positions.items()])
     beacons = set()
     for k, (pos, rot) in positions.items():
         for row in data[k]:
@@ -76,15 +78,14 @@ def part1(data, rotations):
 def parallelized(data, modulo, rotations, cpus):
     relations = []
     for i in range(len(data)):
-        if i % cpus != modulo:
-            continue
         for j in range(i+1, len(data)):
+            if j % cpus != modulo:
+                continue
             coin, coord, rot = check(data[i], data[j], rotations)
             if coin:
                 relations.append([i, j, coord, rot])
                 inv = np.linalg.inv(rot).astype(int)
                 relations.append([j, i, -np.dot(inv, coord), inv])
-        print('finished', i)
     return relations
 
 
@@ -102,13 +103,8 @@ def check(row1, row2, rotations):
 
 
 def part2(positions):
-    els_scanners = [v[0] for v in positions.values()]
-    ma = 0
-    for v1 in els_scanners:
-        for v2 in els_scanners:
-            v = np.abs(v1 - v2).sum()
-            ma = max(ma, v)
-    return ma
+    scanners = [v[0] for v in positions.values()]
+    return max(np.abs(v1-v2).sum() for v1, v2 in it.product(scanners, repeat=2))
 
 
 if __name__ == '__main__':
