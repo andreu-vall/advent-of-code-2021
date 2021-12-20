@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import collections as col
 import itertools as it
 import numpy as np
 import utils
@@ -19,9 +20,9 @@ def get_data():
 
 
 def rotations3d():
-    x_rot = np.array([[1, 0, 0],
-                      [0, 0, 1],
-                      [0, -1, 0]])
+    x_rot = np.array([[1, 0, 0],    # x -> x'
+                      [0, 0, 1],    # y -> y'
+                      [0, -1, 0]])  # z -> z'
 
     y_rot = np.array([[0, 0, 1],
                       [0, 1, 0],
@@ -88,15 +89,15 @@ def parallelized(data, modulo, rotations, cpus):
 
 
 def check(row1, row2, rotations):
-    primer = set(tuple(row) for row in row1)
-    for i in range(len(row1)):
-        for j in range(len(row2)):
-            for rot in rotations:
-                second_coord = row1[i] - np.dot(rot, row2[j])
-                second = {tuple(second_coord + np.dot(rot, row)) for row in row2}
-                n = len(primer.intersection(second))
-                if n >= 12:
-                    return True, second_coord, rot
+    for rot in rotations:
+        counter = col.Counter()
+        perm = [np.dot(rot, row) for row in row2]
+        for v1 in row1:
+            for v2 in perm:
+                counter[tuple(v1-v2)] += 1
+        coord, times = counter.most_common(1)[0]
+        if times >= 12:
+            return True, coord, rot
     return False, 0, 0
 
 
