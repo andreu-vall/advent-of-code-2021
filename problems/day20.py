@@ -5,21 +5,18 @@ import utils
 
 def count_light(data, iterations):
     first, array = data
-    infinite = '.'
+    infinite = 0
     for _ in range(iterations):
+        nou_arr = np.empty((array.shape[0]+2, array.shape[1]+2), dtype=int)
         array = np.pad(array, pad_width=2, constant_values=infinite)
-        # Maybe utilitzant moving windows amb funció custom és molt més ràpid
-        nou_arr = []
         for i in range(1, array.shape[0]-1):
-            nou_arr.append([])
             for j in range(1, array.shape[1]-1):
                 mask = array[i-1:i+2, j-1:j+2].flatten()
-                binary = ''.join(mask).replace('.', '0').replace('#', '1')
-                nou_arr[-1].append(first[int(binary, 2)])
-        array = np.array(nou_arr)
-        infinite_binary = (infinite*9).replace('.', '0').replace('#', '1')
-        infinite = first[int(infinite_binary, 2)]
-    return int((array == '#').sum())
+                binary = ''.join(str(v) for v in mask)
+                nou_arr[i-1][j-1] = first[int(binary, 2)]
+        array = nou_arr
+        infinite = first[int(str(infinite) * 9, 2)]
+    return int(array.sum())
 
 
 def part1(data):
@@ -32,8 +29,8 @@ def part2(data):
 
 def get_data():
     lines = utils.get_lines(20)
-    first = lines[0]
-    array = np.array([list(line) for line in lines[2:]])
+    first = [int(ch == '#') for ch in lines[0]]
+    array = np.array([[int(ch == '#') for ch in line] for line in lines[2:]])
     return first, array
 
 
