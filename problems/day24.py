@@ -1,11 +1,38 @@
 import utils
 
 
-pos = {'w': 0, 'x': 1, 'y': 2, 'z': 3}
+def find_possibles(blocks):
+    numb_divisions = sum(b[0] for b in blocks)
+    max_z = 26 ** numb_divisions
+    discarded = [set() for _ in range(len(blocks))]
+    possibles = []
+    compute_alu(0, 0, blocks, max_z, discarded, '', possibles)
+    return possibles
 
 
-def part1(data):
-    return int(compute_alu([0, 0, 0, 0], data, 0, 0)[1])
+def compute_alu(z, depth, blocks, max_z, discarded, frag, possibles):
+    if z >= max_z:
+        return False
+
+    if depth == len(blocks):
+        if z == 0:
+            print('Found:', int(frag))
+            possibles.append(int(frag))
+        return z == 0
+
+    if z in discarded[depth]:
+        return False
+
+    z_prev = z
+    if blocks[depth][0]:
+        max_z //= 26
+    found_any = False
+    for w in range(1, 10):
+        z = block(z_prev, w, *blocks[depth])
+        found_any = found_any or compute_alu(z, depth+1, blocks, max_z, discarded, frag + str(w), possibles)
+
+    if not found_any:
+        discarded[depth].add(z_prev)
 
 
 def block(z, w, divide, sth1, sth2):
@@ -17,51 +44,18 @@ def block(z, w, divide, sth1, sth2):
     return z
 
 
-def compute_alu(variables, data, i, depth):
-    while True:
-        if i == len(data) - 1:
-            print('z is', variables[pos['z']])
-            return variables[pos['z']] == 0, ''
-
-        if data[i][0] == 'inp':
-            for j in range(9, 0, -1):
-                n_variables = variables[:]
-                n_variables[pos[data[i][1]]] = j
-                correct, numb = compute_alu(n_variables, data, i+1, depth+1)
-                if correct:
-                    return True, str(j) + numb
-            return False, ''
-
-        op = int(data[i][2]) if len(data[i][2]) > 1 or data[i][2].isnumeric() else variables[pos[data[i][2]]]
-
-        match data[i][0]:
-            case 'add':
-                variables[pos[data[i][1]]] += op
-            case 'mul':
-                variables[pos[data[i][1]]] *= op
-            case 'div':
-                if op == 0:
-                    print('Failed at depth', depth)
-                    return False, ''
-                variables[pos[data[i][1]]] //= op
-            case 'mod':
-                if variables[pos[data[i][1]]] < 0 or op <= 0:
-                    print('Failed at depth', depth)
-                    return False, ''
-                variables[pos[data[i][1]]] %= op
-            case 'eql':
-                variables[pos[data[i][1]]] = int(op == variables[pos[data[i][1]]])
-        i += 1
-
-
-def part2(data):
-    return 0
-
-
 def get_data():
-    return [line.split() for line in utils.get_lines(24)]
+    lines = utils.get_lines(24)
+    blocks = []
+    for i in range(len(lines)//18):
+        divide = lines[18*i+4].split()[-1] == '26'
+        sth1 = int(lines[18*i+5].split()[-1])
+        sth2 = int(lines[18*i+15].split()[-1])
+        blocks.append([divide, sth1, sth2])
+    return blocks
 
 
 if __name__ == '__main__':
-    print(part1(get_data()))
-    print(part2(get_data()))
+    possibles_ = find_possibles(get_data())
+    print(max(possibles_))
+    print(min(possibles_))
